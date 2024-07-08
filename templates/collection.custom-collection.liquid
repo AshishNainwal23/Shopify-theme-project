@@ -1,0 +1,47 @@
+{% layout 'theme' %}
+<div class="collection-page">
+  <div class="collection-sidebar">
+    <h3>All Products</h3>
+    <ul>
+      <li><a href="/collections/all">All</a></li>
+      <li><a href="/collections/shirts">Shirts</a></li>
+      <li><a href="/collections/shorts">Shorts</a></li>
+      <li><a href="/collections/swimwear">Swimwear</a></li>
+      <li><a href="/collections/accessories">Accessories</a></li>
+    </ul>
+    <h5>Sort by:</h5>
+    <form method="get" action="">
+      <select id="sort-by" name="sort_by" onchange="this.form.submit()">
+        <option value="manual" {% if sort_by == "manual" %}selected{% endif %}>Featured</option>
+        <option value="price-ascending" {% if sort_by == "price-ascending" %}selected{% endif %}>Price, low to high</option>
+        <option value="price-descending" {% if sort_by == "price-descending" %}selected{% endif %}>Price, high to low</option>
+      </select>
+    </form>
+  </div>
+
+  <div class="collection-products">
+    {% assign sorted_products = collection.products %}
+    {% if sort_by == 'price-ascending' %}
+      {% assign sorted_products = collection.products | sort: 'price' %}
+    {% elsif sort_by == 'price-descending' %}
+      {% assign sorted_products = collection.products | sort: 'price' | reverse %}
+    {% endif %}
+    {% for product in sorted_products %}
+      <div class="product-card">
+        <a href="{{ product.url }}">
+          <img 
+            src="{{ product.featured_image | img_url: 'medium' }}" 
+            alt="{{ product.title }}" 
+            width="300" 
+            height="300">
+          <h2>{{ product.title }}</h2>
+        </a>
+        <p>{{ product.price | money }}</p>
+        <form action="/cart/add" method="post">
+          <input type="hidden" name="id" value="{{ product.variants.first.id }}">
+          <button type="submit">Add to Cart</button>
+        </form>
+      </div>
+    {% endfor %}
+  </div>
+</div>
